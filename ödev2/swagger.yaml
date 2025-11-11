@@ -1,0 +1,47 @@
+openapi: 3.0.0
+info:
+  title: Flask Hesap Makinesi API
+  description: Toplama, çıkarma, çarpma, bölme, üs ve karekök işlemleri yapan basit REST servisi.
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: Localhost sunucusu
+
+paths:
+  /api/hesapla:
+    post:
+      summary: Hesaplama işlemi yapar
+      tags:
+        - Hesap Makinesi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sayi1:
+                  type: number
+                  example: 9
+                sayi2:
+                  type: number
+                  example: 3
+                islem:
+                  type: string
+                  example: "üs"
+      responses:
+        '200':
+          description: Başarılı işlem sonucu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sonuc:
+                    type: number
+                    example: 729.0
+        '400':
+          description: Geçersiz parametre
+        '500':
+          description: Sunucu hatası
