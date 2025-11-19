@@ -1,0 +1,22 @@
+services:
+  hesap_api:
+    build: ./hesap_api
+    ports:
+      - "5000:5000"
+    restart: always
+
+  client_api:
+    build: ./client_api
+    ports:
+      - "8000:6000"
+    depends_on:
+      - hesap_api
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - client_api
+    restart: always
