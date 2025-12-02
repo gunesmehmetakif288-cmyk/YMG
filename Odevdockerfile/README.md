@@ -8,3 +8,10 @@ Bu proje 3 servisten oluşur:
 
 ## 🧰 Docker Build Örneği
 (Ödevin gereği tek satır build örneği)
+
+## ✨ Yeni Özellik: İşlem Geçmişi
+
+- Her yapılan hesaplama `Hesap API` içinde bellekte saklanır.
+- `/api/gecmis` endpoint'i ile geçmiş JSON olarak döner.
+- `Client API` üzerinden `/client/gecmis` ile frontend bu veriyi alır.
+- Frontend, sonuç alanının altında "İşlem Geçmişi" tablosu olarak gösterir.

@@ -5,19 +5,33 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-HESAP_API_URL = "http://hesap_api:5000/api/hesapla"
+HESAP_API_HESAPLA_URL = "http://hesap_api:5000/api/hesapla"
+HESAP_API_GECMIS_URL = "http://hesap_api:5000/api/gecmis" 
+
 
 @app.route("/client/hesapla", methods=["POST"])
 def hesapla():
     data = request.get_json()
 
     try:
-        response = requests.post(HESAP_API_URL, json=data)
+        response = requests.post(HESAP_API_HESAPLA_URL, json=data)
         return jsonify({
             "giden": data,
             "cevap": response.json()
         })
 
+    except Exception as e:
+        return jsonify({"hata": str(e)}), 500
+
+
+@app.route("/client/gecmis", methods=["GET"])
+def gecmis():
+    """
+    Hesap API'dan işlem geçmişini alıp frontend'e iletir.
+    """
+    try:
+        response = requests.get(HESAP_API_GECMIS_URL)
+        return jsonify(response.json())
     except Exception as e:
         return jsonify({"hata": str(e)}), 500
 
