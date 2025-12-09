@@ -1,0 +1,28 @@
+services:
+  hesap_api:
+    build: ./hesap_api
+    container_name: hesap_api
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  client_api:
+    build: ./client_api
+    container_name: client_api
+    ports:
+      - "8000:6000"
+    depends_on:
+      - hesap_api
+    environment:
+      - API_TOKEN=supersecret123
+      - JWT_SECRET=verysecretjwt
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - client_api
+    restart: unless-stopped
