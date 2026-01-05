@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-calcdb}
+      POSTGRES_USER: ${POSTGRES_USER:-calc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-calcpass}
+    ports:
+      - "${DB_PORT_PUBLISH:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-calc} -d ${POSTGRES_DB:-calcdb}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  hesap_api:
+    build: ./hesap_api
+    ports:
+      - "${HESAP_API_PORT_PUBLISH:-5000}:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-calcdb}
+      DB_USER: ${POSTGRES_USER:-calc}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-calcpass}
+      DB_WAIT_TIMEOUT: ${DB_WAIT_TIMEOUT:-45}
+    restart: unless-stopped
+
+  client_api:
+    build: ./client_api
+    ports:
+      - "${CLIENT_API_PORT_PUBLISH:-8000}:6000"
+    depends_on:
+      - hesap_api
+    environment:
+      HESAP_API_BASE: http://hesap_api:5000
+      API_TOKEN: ${API_TOKEN:-supersecret123}
+      JWT_SECRET: ${JWT_SECRET:-verysecretjwt}
+      JWT_TTL_MINUTES: ${JWT_TTL_MINUTES:-60}
+    restart: unless-stopped
+
+  mcp_api:
+    build: ./mcp_api
+    container_name: mcp_api
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT_PUBLISH:-5173}:5173"
+    depends_on:
+      - client_api
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:${CLIENT_API_PORT_PUBLISH:-8000}}
+    restart: unless-stopped
+
+volumes:
+  db_data:
